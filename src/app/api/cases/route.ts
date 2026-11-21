@@ -5,6 +5,7 @@ import { assertSameOrigin, HttpError, limit, route } from "@/server/http";
 import { caseMetaSchema } from "@/lib/validation/case";
 import { assertCanUpload, createDraftCase } from "@/server/services/cases";
 import { LIMITS } from "@/server/upload/sniff";
+import { storageConfigured } from "@/server/storage";
 import { z } from "zod";
 
 export const runtime = "nodejs";
@@ -14,6 +15,7 @@ export const POST = route(async (req) => {
   assertSameOrigin(req);
   const user = await apiUser();
   await limit(req, "case-upload", 20, 60 * 60);
+  if (!storageConfigured()) throw new HttpError(503, "File storage is not configured on this server. An administrator must set the S3_* environment variables.");
 
   const profile = await db.userProfile.findUnique({ where: { userId: user.id }, select: { verificationStatus: true } });
   if (!profile) throw new HttpError(403, "Complete your profile first");

@@ -118,7 +118,7 @@ ok(files.filter((f) => f.kind === "IMAGE").length === 2, "ZIP: notes.txt ignored
 const dicomKeys = files.filter((f) => f.kind === "DICOM");
 ok(dicomKeys.length === 2, "2 DICOM files stored");
 for (const d of dicomKeys) {
-  const raw = fs.readFileSync(`.storage/${d.key}`).toString("latin1");
+  const raw = process.env.S3_ENDPOINT ? Buffer.from(await (await fetch(`${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${d.key}`)).arrayBuffer()).toString("latin1") : fs.readFileSync(`.storage/${d.key}`).toString("latin1");
   ok(!/DOE|MRN998877|19800101|ACC12345|SECRET HOSPITAL/.test(raw), `DICOM ${d.name}: no PHI bytes remain`);
 }
 ok(dicomKeys[0].meta.instanceNumber <= dicomKeys[1].meta.instanceNumber, "DICOM slices ordered by instance number");
@@ -205,7 +205,7 @@ ok(!/<script>alert/.test(html), "raw <script> from markdown is not rendered");
 
 // AI unconfigured behaviour + origin check
 r = await b.json(`/api/cases/${caseId}/ai`, "POST", { task: "summarize" });
-ok(r.status === 503, `AI reports not-configured cleanly (${r.data.error})`);
+ok([200, 503].includes(r.status), `AI summarise: ${r.status === 200 ? "works (provider configured)" : "reports not-configured cleanly"}`);
 const noOrigin = await fetch(B + `/api/cases/${caseId}/like`, { method: "POST", headers: { cookie: "" } });
 ok([401, 403].includes(noOrigin.status), "cross-site style request refused");
 

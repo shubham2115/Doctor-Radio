@@ -49,12 +49,12 @@ export async function createDraftCase(userId: string, meta: Meta, files: { name:
     for (const [i, p] of processed.entries()) {
       const fileId = crypto.randomUUID();
       const key = `cases/${caseId}/${fileId}.${p.ext}`;
-      await storage.put(key, p.data);
+      await storage.put(key, p.data, p.mime);
       stored.push(key);
       let thumbKey: string | null = null;
       if (p.thumb) {
         thumbKey = `cases/${caseId}/${fileId}.thumb.jpg`;
-        await storage.put(thumbKey, p.thumb);
+        await storage.put(thumbKey, p.thumb, "image/jpeg");
         stored.push(thumbKey);
       }
       rows.push({
