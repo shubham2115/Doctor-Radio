@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BadgeCheck, Bot, FileSearch, Flag, ShieldCheck } from "lucide-react";
+import { BadgeCheck, Bot, FileSearch, Flag, ShieldCheck, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { db } from "@/server/db";
 import { requireRole } from "@/server/dal";
@@ -30,7 +30,12 @@ export default async function AdminPage() {
       <div className="flex flex-wrap items-center gap-3">
         <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent"><ShieldCheck className="h-5 w-5" /></span>
         <div className="flex-1"><h1 className="text-2xl font-semibold tracking-tight">Moderation</h1><p className="text-sm text-muted">Review cases, verify doctors and handle reports.</p></div>
-        {me.role === "ADMIN" && <Button asChild variant="secondary"><Link href="/admin/ai"><Bot className="h-4 w-4" />AI settings</Link></Button>}
+        {me.role === "ADMIN" && (
+          <div className="flex gap-2">
+            <Button asChild variant="secondary"><Link href="/admin/users"><Users className="h-4 w-4" />Users</Link></Button>
+            <Button asChild variant="secondary"><Link href="/admin/ai"><Bot className="h-4 w-4" />AI settings</Link></Button>
+          </div>
+        )}
       </div>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">{stats.map(([l, v]) => <Card key={l} className="p-4"><p className="text-2xl font-semibold tabular-nums">{v}</p><p className="text-xs text-muted">{l}</p></Card>)}</div>
 
